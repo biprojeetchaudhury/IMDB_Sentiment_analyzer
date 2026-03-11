@@ -1,4 +1,4 @@
-# CineVibe: LSTM-Based Movie Review Sentiment Analysis
+# CineVibe: Movie Review Sentiment Analysis
 
 **A deep learning project leveraging LSTM neural networks and GloVe embeddings for accurate sentiment classification of IMDb movie reviews**
 
@@ -7,7 +7,7 @@
 ## 📋 Table of Contents
 
 - [Project Overview](#project-overview)
-- [Suggested Project Name](#suggested-project-name)
+- [Model Comparison & Selection](#model-comparison-&-selection)
 - [Key Features](#key-features)
 - [Datasets](#datasets)
 - [Project Structure](#project-structure)
@@ -22,26 +22,21 @@
 ---
 
 ## 🎬 Project Overview
-
-This project implements a sophisticated sentiment analysis system using Long Short-Term Memory (LSTM) neural networks to classify IMDb movie reviews as positive or negative. The model achieves **81.8% accuracy** by leveraging pre-trained GloVe word embeddings, enabling it to understand semantic relationships between words and capture temporal dependencies in review text.
-
-The project demonstrates the full machine learning pipeline: data preprocessing, exploratory data analysis, model training with GloVe embeddings, validation, and predictions on unseen data.
+    This project explores different Deep Learning architectures to solve the binary sentiment classification problem (Positive/Negative) using the IMDb 50k dataset. While basic models provide a baseline, the project focuses on capturing long-term dependencies in text using Long Short-Term Memory (LSTM) networks and spatial patterns using Convolutional Neural Networks (CNN).
 
 ---
 
-## 💡 Suggested Project Name
+## ⚖ Model Comparison & Selection
+Unlike a single-model approach, this project evaluates three distinct architectures to find the optimal balance between training speed and accuracy:
 
-### **CineVibe: IMDb Sentiment Analyzer**
+- **Simple Neural Network**: A baseline model using a Flatten layer after the Embedding layer. It serves as a benchmark for "bag-of-words" style neural approaches.
 
-Or alternatively:
-- **SentiReview**: Deep Learning Sentiment Classification
-- **ReviewSense**: LSTM-based Movie Review Analysis
-- **MovieMind**: Intelligent Film Review Sentiment Engine
+- **Convolutional Neural Network (Conv1D)**: Utilizes 1D convolutions to extract local features (n-grams) from the text.
 
-The suggested name **CineVibe** reflects:
-- **Cine**: Movie/cinema-related theme
-- **Vibe**: The emotional/sentiment aspect of reviews
-- Clear indication of IMDb review analysis
+- **LSTM (Final Model)**: A Recurrent Neural Network (RNN) variant designed to remember information over long sequences, making it ideal for understanding the context of long movie reviews.
+
+Why LSTM won?
+While the CNN was faster to train, the LSTM achieved superior performance (81.8% accuracy) because it effectively handled the sequential nature of language and the "vanishing gradient" problem common in standard RNNs.
 
 ---
 
@@ -49,7 +44,7 @@ The suggested name **CineVibe** reflects:
 
 - **LSTM-Based Architecture**: Captures sequential dependencies in review text
 - **Pre-trained Embeddings**: Uses GloVe.6B.100d word embeddings for rich semantic representation
-- **High Accuracy**: Achieves 81.8% accuracy on test data
+- **High Accuracy**: Achieves 81.8% accuracy on test data using LSTM 
 - **Scalable Pipeline**: Process batch predictions on unseen reviews
 - **Production-Ready**: Saved model weights for easy deployment
 - **Comprehensive Analysis**: Includes visualizations and performance metrics
@@ -82,26 +77,21 @@ All datasets used in this project are sourced from **Kaggle** and are publicly a
 ## 📁 Project Structure
 
 ```
-CineVibe-IMDb-Sentiment-Analyzer/
+IMDb-Sentiment-Analyzer/
 │
-├── README.md                          # Project documentation (this file)
-├── Sentiment_Analysis.ipynb           # Main Jupyter notebook with full pipeline
-├── requirements.txt                   # Python dependencies
+├── README.md                     # Project documentation (this file)
+├── Sentiment_Analysis.ipynb      # Main Jupyter notebook with full pipeline
 │
-├── data/
-│   ├── a1_IMDB_Dataset.csv           # Training dataset (50k reviews)
-│   ├── a2_glove.6B.100d.txt          # GloVe pre-trained embeddings
-│   └── a3_IMDb_Unseen_Reviews.csv    # Test dataset for unseen predictions
+│── a1_IMDB_Dataset.csv           # Training dataset (50k reviews)
+│── a2_glove.6B.100d.txt          # GloVe pre-trained embeddings
+│── a3_IMDb_Unseen_Reviews.csv    # Test dataset for unseen predictions
 │
-├── models/
-│   ├── lstm_model_acc0.818.keras     # Trained LSTM model (81.8% accuracy)
-│   └── model.pkl                      # Preprocessing/tokenizer pickle file
+│── lstm_model_acc0.818.keras     # Trained LSTM model (81.8% accuracy)
+│── model.pkl                     # Preprocessing/tokenizer pickle file
 │
-├── outputs/
-│   └── unseen_Predictions.csv        # Model predictions on unseen reviews
+│── unseen_Predictions.csv        # Model predictions on unseen reviews
 │
-└── notebooks/
-    └── Sentiment_Analysis.ipynb       # Complete analysis & training pipeline
+└── Sentiment_Analysis.ipynb      # Complete analysis & training pipeline
 
 ```
 
@@ -185,7 +175,7 @@ Binary Classification (Positive/Negative)
 
 ## 📈 Results & Performance
 
-### Model Performance Metrics
+### Model Performance Metrics for LSTM (The most successful model)
 
 | Metric | Score |
 |--------|-------|
@@ -306,39 +296,50 @@ pip install -r requirements.txt
 
 ## 🔬 Methodology
 
-### 1. **Data Preparation**
-   - Load and combine IMDB reviews dataset
-   - Handle missing values and duplicates
-   - Balance positive/negative samples
+### 1. Data Preparation
+* **Data Acquisition**: Utilized the `a1_IMDB_Dataset.csv` containing 50,000 highly polar movie reviews.
+* **Integrity Check**: Conducted missing value analysis using `.isnull().sum()`, confirming a clean dataset with no null entries.
+* **Data Partitioning**: Split the dataset into **80% training** and **20% testing** sets using `train_test_split` with a fixed `random_state=45` for reproducibility.
 
-### 2. **Text Preprocessing**
-   - Convert text to lowercase
-   - Remove special characters and HTML tags
-   - Tokenize using TensorFlow tokenizer
-   - Pad sequences to consistent length
+### 2. Text Preprocessing
+* **Noise Filtering**: Implemented a robust cleaning pipeline using Regular Expressions (`re`):
+    * Removed all non-alphabetical characters (numbers and punctuation).
+    * Removed standalone single characters (e.g., "s", "a", "i") that don't add semantic value.
+    * Collapsed multiple whitespace characters into single spaces.
+* **Stopword Removal**: Filtered out common English stopwords using the `nltk` library to focus on sentiment-heavy words.
+* **Vectorization**:
+    * Tokenized the corpus using the Keras `Tokenizer`.
+    * Standardized all input lengths to **100 words** (`max_pad = 100`) using "post" padding to ensure uniform tensor dimensions for the neural networks.
 
-### 3. **Embedding**
-   - Load GloVe 6B 100-dimensional embeddings
-   - Create embedding matrix for vocabulary
-   - Initialize embedding layer with pre-trained weights
 
-### 4. **Model Training**
-   - Split data: 70% train, 15% validation, 15% test
-   - Implement LSTM architecture with dropouts
-   - Use Adam optimizer with binary crossentropy loss
-   - Train for 5-8 epochs with early stopping
 
-### 5. **Evaluation & Validation**
-   - Assess accuracy, precision, recall, F1-score
-   - Analyze confusion matrix and ROC curves
-   - Evaluate on completely unseen test set
+### 3. Word Embedding
+* **GloVe Integration**: Loaded the pre-trained **GloVe.6B.100d** (Global Vectors for Word Representation) to map words into a 100-dimensional semantic vector space.
+* **Embedding Matrix**: Created a specialized weight matrix for the vocabulary where each index corresponds to its pre-trained GloVe vector.
+* **Layer Configuration**: Initialized the `Embedding` layer with these weights and set `trainable=False` to leverage pre-trained knowledge without altering it during training.
 
-### 6. **Inference**
-   - Generate predictions for unseen reviews
-   - Calculate confidence scores
-   - Export results to CSV
+### 4. Model Architecture Comparison
+The project systematically compared three distinct architectures to determine the best performer:
 
----
+| Model | Architecture Highlights | Purpose |
+| :--- | :--- | :--- |
+| **Simple Neural Network** | `Embedding` -> `Flatten` -> `Dense(Sigmoid)` | Baseline benchmark for "bag-of-words" logic. |
+| **CNN (1D)** | `Conv1D(128 filters)` -> `GlobalMaxPooling1D` | Capturing local features and n-grams (spatial patterns). |
+| **LSTM (Final)** | `LSTM(128 units)` -> `Dense(Sigmoid)` | Capturing long-term dependencies and sequence context. |
+
+
+
+### 5. Training & Evaluation
+* **Hyperparameters**: All models utilized the **Adam** optimizer and **Binary Cross-Entropy** loss function.
+* **Training Protocol**: 
+    * Trained for **6 to 10 epochs** with a batch size of **128**.
+    * Reserved **20% of the training data** for real-time validation (`validation_split=0.2`).
+* **Selected Model**: The **LSTM** model was chosen as the final predictor due to its superior ability to handle the sequential nature of long movie reviews.
+
+### 6. Inference & Deployment
+* **Blind Testing**: Applied the finalized LSTM model to a completely separate dataset (`a3_IMDb_Unseen_Reviews.csv`).
+* **Result Export**: Generated sentiment predictions and exported them to `unseen_Predictions.csv`, including Movie Title, Review Text, IMDb Rating, and the Predicted Sentiment.
+* **Persistence**: Saved the final LSTM model using `pickle` for future deployment.---
 
 ## 🎯 Future Enhancements
 
@@ -400,10 +401,10 @@ If you use this project in your research, please cite:
 
 ```bibtex
 @project{cinevibe2024,
-  title={CineVibe: LSTM-Based Movie Review Sentiment Analysis},
-  author={Your Name},
+  title={CineVibe: Movie Review Sentiment Analysis},
+  author={Biprojeet Chaudhury},
   year={2024},
-  url={https://github.com/yourusername/CineVibe-IMDb-Sentiment-Analyzer}
+  url={https://github.com/biprojeetchaudhury/CineVibe-IMDb-Sentiment-Analyzer}
 }
 ```
 
