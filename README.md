@@ -22,7 +22,8 @@
 ---
 
 ## 🎬 Project Overview
-    This project explores different Deep Learning architectures to solve the binary sentiment classification problem (Positive/Negative) using the IMDb 50k dataset. While basic models provide a baseline, the project focuses on capturing long-term dependencies in text using Long Short-Term Memory (LSTM) networks and spatial patterns using Convolutional Neural Networks (CNN).
+
+This project explores different Deep Learning architectures to solve the binary sentiment classification problem (Positive/Negative) using the IMDb 50k dataset. While basic models provide a baseline, the project focuses on capturing long-term dependencies in text using Long Short-Term Memory (LSTM) networks and spatial patterns using Convolutional Neural Networks (CNN).
 
 ---
 
@@ -36,6 +37,7 @@ Unlike a single-model approach, this project evaluates three distinct architectu
 - **LSTM (Final Model)**: A Recurrent Neural Network (RNN) variant designed to remember information over long sequences, making it ideal for understanding the context of long movie reviews.
 
 Why LSTM won?
+
 While the CNN was faster to train, the LSTM achieved superior performance (81.8% accuracy) because it effectively handled the sequential nature of language and the "vanishing gradient" problem common in standard RNNs.
 
 ---
